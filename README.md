@@ -19,7 +19,8 @@ Each skill is independently installable from ClawHub. Skills install by
 
 ```bash
 # Install a skill published to ClawHub
-openclaw skills install medium-blog-post-creator
+openclaw skills install @ylnhari/medium-blog-post-creator
+
 ```
 
 You can also install directly from a local checkout by pointing OpenClaw
