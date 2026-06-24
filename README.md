@@ -39,27 +39,29 @@ openclaw-skills/
 ├── CODE_OF_CONDUCT.md         ← community standards
 ├── CHANGELOG.md               ← umbrella changelog
 ├── .gitignore
-├── .github/workflows/         ← auto-publish workflows (one per skill)
-│   └── skill-publish-<skill-slug>.yml
+├── .github/workflows/         ← example publish workflows (one per skill, inactive)
+│   └── skill-publish-<skill-slug>.yml.example
 └── skills/
     └── <skill-slug>/         ← this whole folder is what publishes to ClawHub
         ├── SKILL.md           ← required: skill procedure + frontmatter
+        ├── README.md          ← optional: short listing page (ships to ClawHub)
         ├── references/        ← optional: docs the agent loads on demand
         ├── assets/            ← optional: templates / output resources
         └── scripts/           ← optional: deterministic helpers
 ```
 
-A published skill bundle is just `SKILL.md` plus its supporting
-`references/`, `assets/`, and `scripts/` — the same shape as the skills that
-ship with OpenClaw. Human-facing docs (this README, per-skill notes, version
-history) live at the **repo root**, not inside the skill folder, so they don't
-ship to every install.
+A published skill bundle is `SKILL.md` plus its supporting `references/`,
+`assets/`, `scripts/`, and an optional short `README.md` for the ClawHub
+listing — the same shape as the skills that ship with OpenClaw. Repo-meta
+(this top-level README, `CONTRIBUTING`, `LICENSE`, the umbrella changelog, CI)
+lives at the **repo root** and does **not** ship to installs.
 
-Every skill ships with its own GitHub Actions workflow at
-`.github/workflows/skill-publish-<skill-slug>.yml` (at the repo root —
-GitHub Actions does not discover workflows nested inside `skills/`).
-Each workflow publishes that single skill to ClawHub when triggered
-manually (`workflow_dispatch`) or via a tagged release.
+Every skill ships with an **example** publish workflow at
+`.github/workflows/skill-publish-<skill-slug>.yml.example` (at the repo root —
+GitHub Actions does not discover workflows nested inside `skills/`). It is
+**inactive** until you rename it to `.yml` and add a `CLAWHUB_TOKEN` secret;
+once active it publishes that single skill to ClawHub on `workflow_dispatch`
+or a tagged release. Until then, publish manually with the `clawhub` CLI.
 
 ## Publishing
 

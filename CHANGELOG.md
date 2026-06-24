@@ -2,8 +2,9 @@
 
 All notable changes to this repository are documented in this file.
 
-This umbrella changelog tracks repo-wide changes (layout, workflows, docs).
-Per-skill changes are tracked in each skill's own `CHANGELOG.md`.
+This umbrella changelog tracks repo-wide changes (layout, workflows, docs) and
+summarizes notable per-skill changes. Per-skill release history is tracked by
+ClawHub releases (the `--changelog` passed at publish).
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
@@ -20,8 +21,9 @@ for the repository as a whole. Individual skills are versioned independently.
   ClawHub/OpenClaw skills ship**: now just `SKILL.md` + `references/` +
   `assets/`. Moved the HTML rules to `references/html-standards.md`, the
   config schemas/resolution to `references/configuration.md`, and the
-  templates to `assets/`. Removed the in-bundle `README.md` and `CHANGELOG.md`
-  (no published OpenClaw skill ships those; the whole folder is published).
+  templates to `assets/`. Removed the in-bundle `CHANGELOG.md` and trimmed the
+  per-skill `README.md` to a short ClawHub listing page (the whole folder is
+  published, so only what installers need stays).
 - Frontmatter aligned with OpenClaw's strict allow-list: dropped the
   invalid `version`/`tags`/`prerequisites`; added `metadata.openclaw`
   (`emoji`, `requires.bins`), `homepage`, and `license`. Verified with the
@@ -36,8 +38,9 @@ for the repository as a whole. Individual skills are versioned independently.
 
 ### Docs
 - `CONTRIBUTING.md` corrected to OpenClaw's real conventions: strict
-  frontmatter allow-list, `SKILL.md`-only bundles (no per-skill
-  README/CHANGELOG), and config stored outside the bundle.
+  frontmatter allow-list, lean `SKILL.md`-centric bundles (optional short
+  README, no in-bundle CHANGELOG), config stored outside the bundle, and
+  example (inactive) publish workflows.
 
 ## [1.0.0] - 2026-06-24
 

@@ -1,14 +1,22 @@
-# .github/workflows/skill-publish-medium-blog-post-creator.yml
+# EXAMPLE — INACTIVE. This file ends in `.yml.example`, so GitHub Actions does
+# NOT discover or run it. It is a ready-to-use publish workflow you can enable
+# whenever you choose.
 #
-# Per-skill publish workflow for ClawHub. Lives at the repo root because
-# GitHub Actions only discovers workflow files from <repo-root>/.github/workflows/.
+# To ACTIVATE:
+#   1. Rename it to drop the `.example` suffix:
+#      .github/workflows/skill-publish-medium-blog-post-creator.yml
+#   2. Add the repository secret CLAWHUB_TOKEN (https://clawhub.ai -> API token)
+#      under Settings -> Secrets and variables -> Actions.
+#   3. Confirm the non-interactive auth/flags with `clawhub skill publish --help`
+#      (see the note on the Publish step below).
 #
-# When adding a new skill, copy this file to:
-#   .github/workflows/skill-publish-<skill-slug>.yml
+# Per-skill publish workflow for ClawHub. Workflows must live at the repo root
+# (<repo-root>/.github/workflows/) — GitHub Actions does not discover files
+# nested inside skills/.
+#
+# When adding a new skill, copy this file to
+#   .github/workflows/skill-publish-<skill-slug>.yml.example
 # and adjust: workflow `name:`, the tag pattern, `SKILL_DIR`, `SLUG`, `SKILL_NAME`.
-#
-# Required secrets (set at the repository or org level):
-#   - CLAWHUB_TOKEN   (https://clawhub.ai → API token)
 
 name: Publish medium-blog-post-creator to ClawHub
 

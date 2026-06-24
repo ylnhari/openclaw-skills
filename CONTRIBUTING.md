@@ -39,22 +39,25 @@ pattern makes the skill portable.
 ```
 skills/<your-skill-slug>/
 ├── SKILL.md              ← required (the only mandatory file)
+├── README.md             ← optional: short listing page (ships to ClawHub)
 ├── references/           ← optional: docs the agent loads on demand
 ├── assets/               ← optional: templates / output resources
 └── scripts/              ← optional: deterministic helpers
 ```
 
 **The entire skill folder is published to ClawHub**, so keep it to what an end
-user needs. Do **not** put a `README.md`, `CHANGELOG.md`, or other repo-meta
-docs inside a skill folder — those live at the repo root. This matches the
-skills that ship with OpenClaw (every one is `SKILL.md` plus optional
-`references/`/`assets/`/`scripts/`). Version history is the ClawHub release
-changelog (the `--changelog` passed at publish) plus the umbrella
-`CHANGELOG.md`.
+user needs. `SKILL.md` is the only required file; OpenClaw's bundled skills are
+typically just `SKILL.md` plus optional `references/`/`assets/`/`scripts/`. A
+short `README.md` is **optional** — it ships in the bundle and ClawHub may
+surface it on the listing page, so add one only if it helps installers. Keep
+repo-meta out of the skill folder: no `CHANGELOG.md` (version history is the
+ClawHub release changelog via `--changelog` plus the umbrella `CHANGELOG.md`),
+and no duplicated `LICENSE`/`CONTRIBUTING` — those live at the repo root.
 
-**Note:** per-skill auto-publish workflows live at the repo root
-(`.github/workflows/skill-publish-<skill-slug>.yml`), not inside the skill
-folder. GitHub Actions only discovers workflow files at the repo root.
+**Note:** per-skill publish workflows live at the repo root
+(`.github/workflows/`), not inside the skill folder, because GitHub Actions
+only discovers workflows there. They ship **inactive** with a `.yml.example`
+suffix so nothing runs until you opt in — rename to `.yml` to activate.
 
 ### Persistent configuration (optional pattern)
 
@@ -136,9 +139,10 @@ be hyphen-case and ≤ 64 characters.
 
 ## Publishing
 
-Each skill ships with its own GitHub Actions workflow at
-`.github/workflows/skill-publish-<your-skill-slug>.yml`. The workflow is
-set up to be triggered in two ways:
+Each skill ships with an **example** publish workflow at
+`.github/workflows/skill-publish-<your-skill-slug>.yml.example`. It is
+**inactive** until you rename it to `.yml`. Once activated, it can be
+triggered in two ways:
 
 - **Manually** from the Actions tab (`workflow_dispatch`) — choose a
   version and whether to dry-run.
@@ -150,10 +154,21 @@ To publish a new version of an existing skill:
 1. Decide the new version (passed via `--version` at publish) and record the
    notable changes in the umbrella `CHANGELOG.md`. Do not add a version to
    `SKILL.md` frontmatter — ClawHub tracks the version per release.
-2. Open the Actions tab → "Publish <skill-slug> to ClawHub" → Run
-   workflow. Choose `dry_run: false` to actually publish.
-3. After verifying the publish succeeded, create a matching GitHub tag
-   so future runs can be triggered automatically:
+2. **Either** publish manually from a logged-in shell (simplest):
+
+   ```bash
+   npm i -g clawhub
+   clawhub login
+   clawhub skill publish ./skills/<skill-slug> \
+     --slug <skill-slug> --name "<Human Name>" \
+     --version <version> --changelog "<summary>"   # add --dry-run to preview
+   ```
+
+   **Or** use the workflow: rename `skill-publish-<skill-slug>.yml.example`
+   to `.yml`, add the `CLAWHUB_TOKEN` secret, then Actions tab → "Publish
+   <skill-slug> to ClawHub" → Run workflow with `dry_run: false`.
+3. After verifying the publish succeeded, create a matching GitHub tag so
+   future workflow runs can auto-trigger:
    `git tag v-<skill-slug>-<version> && git push --tags`
 
 If you don't have write access to push tags or trigger workflows, ask a
@@ -177,14 +192,14 @@ needs one secret:
 
    ```bash
    # macOS / Linux / Git Bash on Windows
-   cp .github/workflows/skill-publish-medium-blog-post-creator.yml \
-      .github/workflows/skill-publish-<your-skill-slug>.yml
+   cp .github/workflows/skill-publish-medium-blog-post-creator.yml.example \
+      .github/workflows/skill-publish-<your-skill-slug>.yml.example
    ```
 
    ```powershell
    # PowerShell on Windows
-   Copy-Item .github/workflows/skill-publish-medium-blog-post-creator.yml `
-     .github/workflows/skill-publish-<your-skill-slug>.yml
+   Copy-Item .github/workflows/skill-publish-medium-blog-post-creator.yml.example `
+     .github/workflows/skill-publish-<your-skill-slug>.yml.example
    ```
 
 3. Edit the copy: update the workflow `name:`, `SKILL_DIR`, `SLUG`,
