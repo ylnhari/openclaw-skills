@@ -14,17 +14,17 @@ More skills will be added over time. See [CONTRIBUTING.md](./CONTRIBUTING.md) if
 
 ## Installation
 
-Each skill is independently installable from ClawHub:
+Each skill is independently installable from ClawHub. Replace
+`<owner>` with the GitHub user or org that hosts this repository
+(when you fork or mirror it, change this to your own handle):
 
 ```bash
-# Replace <slug> with the skill's slug from the table above.
-openclaw skills install <owner>/<slug>
-
-# Examples:
-openclaw skills install @your-github-username/medium-blog-post-creator
+# Install a skill published from this repository
+openclaw skills install @<owner>/medium-blog-post-creator
 ```
 
-You can also install directly from this repository by pointing OpenClaw at the skill folder:
+You can also install directly from a local checkout by pointing OpenClaw
+at the skill folder:
 
 ```bash
 openclaw skills install ./skills/medium-blog-post-creator
@@ -40,7 +40,8 @@ openclaw-skills/
 ├── CODE_OF_CONDUCT.md         ← community standards
 ├── CHANGELOG.md               ← umbrella changelog
 ├── .gitignore
-├── workflows/                 ← shared workflow docs (per-skill workflows live with their skill)
+├── .github/workflows/         ← auto-publish workflows (one per skill)
+│   └── skill-publish-<skill-slug>.yml
 └── skills/
     └── <skill-slug>/
         ├── SKILL.md           ← required: skill procedure + frontmatter
@@ -48,9 +49,6 @@ openclaw-skills/
         ├── CHANGELOG.md       ← per-skill changelog
         ├── examples/          ← optional: usage examples
         └── assets/            ← optional: images, diagrams
-
-.github/workflows/                  ← auto-publish workflows (one per skill)
-    └── skill-publish-<skill-slug>.yml
 ```
 
 Every skill ships with its own GitHub Actions workflow at

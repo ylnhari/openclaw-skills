@@ -15,3 +15,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Auto-link back from repository metadata to the Medium draft URL.
 - Stops at draft (no auto-publish) to respect Medium's 2025 API closure
   and 2026 publishing rate limits.
+- Per-skill auto-publish workflow at
+  `.github/workflows/skill-publish-medium-blog-post-creator.yml`
+  (in the umbrella repository).

@@ -120,11 +120,24 @@ needs one secret:
 
 1. Create `skills/<your-skill-slug>/` with the standard layout (see
    "Skill folder structure" above).
-2. Copy the workflow file from an existing skill:
-   `cp .github/workflows/skill-publish-medium-blog-post-creator.yml \
-      .github/workflows/skill-publish-<your-skill-slug>.yml`
+2. Copy any existing skill's workflow file to a new path under
+   `.github/workflows/` named for your skill. For example:
+
+   ```bash
+   # macOS / Linux / Git Bash on Windows
+   cp .github/workflows/skill-publish-medium-blog-post-creator.yml \
+      .github/workflows/skill-publish-<your-skill-slug>.yml
+   ```
+
+   ```powershell
+   # PowerShell on Windows
+   Copy-Item .github/workflows/skill-publish-medium-blog-post-creator.yml `
+     .github/workflows/skill-publish-<your-skill-slug>.yml
+   ```
+
 3. Edit the copy: update the workflow `name:`, `SKILL_DIR`, `SLUG`,
-   `SKILL_NAME`, and the `push.tags` pattern.
+   `SKILL_NAME`, and the `push.tags` pattern (it must match
+   `v-<your-skill-slug>-*`).
 
 ## Versioning
 

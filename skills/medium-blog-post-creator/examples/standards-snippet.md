@@ -67,4 +67,6 @@ the `<head>` includes:
 <meta property="article:published_time" content="YYYY-MM-DDTHH:MM:SSZ">
 ```
 
-Both must use absolute HTTPS URLs / ISO-8601 dates.
+Both must be valid: `og:image` requires an absolute HTTPS URL,
+`article:published_time` requires ISO-8601 format
+(`YYYY-MM-DDTHH:MM:SSZ`).

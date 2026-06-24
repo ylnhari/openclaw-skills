@@ -1,10 +1,14 @@
 # Assets
 
-Drop optional assets for this skill here — for example:
+This folder is reserved for optional visual assets that document the skill's
+workflow — for example:
 
-- `cover.png` — banner image for the ClawHub listing
-- `flow.gif` — short screen recording of the import step
-- `screenshot-*.png` — annotated screenshots of each workflow step
+- `flow.png` / `flow.gif` — diagram or short screen recording of the
+  10-step workflow
+- `screenshot-*.png` — annotated screenshots of the Medium import UI
+- `logo.png` — small visual identifier for the skill (optional)
 
-The skill itself does not require any assets to function; this folder is
-purely for documentation polish on the ClawHub listing page.
+The skill itself does **not** require any assets to function. Files in
+this folder are purely for documentation polish in the GitHub repo's
+README and do not affect the published ClawHub listing beyond what the
+skill's README renders.

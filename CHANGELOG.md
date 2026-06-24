@@ -19,4 +19,7 @@ for the repository as a whole. Individual skills are versioned independently.
 
 ### Added
 - First public release.
-- Reusable GitHub Actions workflow for multi-skill auto-publish to ClawHub.
+- Per-skill GitHub Actions workflow at `.github/workflows/skill-publish-<skill-slug>.yml`
+  that publishes each skill to ClawHub on `workflow_dispatch` or on a
+  matching tag push.
+- Initial skill: [`medium-blog-post-creator`](./skills/medium-blog-post-creator/) v1.0.0.

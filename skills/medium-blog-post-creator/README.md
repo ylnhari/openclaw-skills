@@ -3,7 +3,7 @@
 > **Publish blog posts to Medium via GitHub Pages + URL import.**
 > No Medium API token required.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ylnhari/openclaw-skills/blob/main/LICENSE)
 [![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-blueviolet)](https://docs.openclaw.ai/clawhub)
 [![ClawHub](https://img.shields.io/badge/ClawHub-install-blue)](https://clawhub.ai)
 
@@ -115,4 +115,4 @@ skills/medium-blog-post-creator/
 
 ## License
 
-MIT — see [LICENSE](../../LICENSE).
+MIT — see the umbrella repository's [LICENSE](https://github.com/ylnhari/openclaw-skills/blob/main/LICENSE).

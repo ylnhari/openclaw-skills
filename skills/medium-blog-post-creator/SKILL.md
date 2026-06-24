@@ -49,14 +49,16 @@ mentions Medium.
 
 ## What this skill does NOT do
 
-- It does **not** auto-publish on Medium. It always stops at **draft** for
+- **No auto-publish on Medium.** The skill always stops at **draft** for
   human review. (Auto-publishing is intentionally out of scope to avoid
   triggering Medium's rate limits or anti-spam filters.)
-- It does **not** require a Medium API token.
-- It does **not** depend on any pre-existing blog repository. It scaffolds
-  one in the user's GitHub account from scratch.
-- It does **not** assume Windows, Mac, or Linux. Paths are derived from the
-  user's inputs and current working directory.
+- **No Medium API token required.** The skill uses the public URL-import
+  endpoint instead.
+- **No pre-existing blog repository needed.** The skill scaffolds one in
+  the user's GitHub account from scratch.
+- **No OS assumptions.** Paths are derived from the user's inputs and
+  current working directory; the same procedure works on Windows,
+  macOS, and Linux.
 
 ## Prerequisites (collected from the user)
 
@@ -142,9 +144,11 @@ post living in its own folder. No frameworks, no build step — only
 plain HTML, CSS, and a JSON index. This keeps the skill free of toolchain
 dependencies and works the same on every machine.
 
-1. Ask the user to confirm or override the inputs from the previous
-   section.
-2. In the agent's shell, run:
+Throughout the rest of this workflow, `<repo-local-path>` refers to the
+local filesystem path of the cloned repository (typically
+`<local-working-dir>/<repo-name>`).
+
+1. In the agent's shell, run:
 
    ```bash
    gh repo create <github-username-or-org>/<repo-name> \
@@ -154,14 +158,14 @@ dependencies and works the same on every machine.
      --add-readme
    ```
 
-3. If the repository already exists, fall back to:
+2. If the repository already exists, fall back to:
 
    ```bash
    gh repo clone <github-username-or-org>/<repo-name> \
      "<local-working-dir>/<repo-name>"
    ```
 
-4. Confirm the clone succeeded and the local path exists.
+3. Confirm the clone succeeded and `<repo-local-path>` exists.
 
 ### Step 3 — Create the post HTML file
 
@@ -191,8 +195,8 @@ outside this subset):**
 - Maximum of 2 `<hr>` per post.
 
 For the full reference HTML template, see
-[`examples/post-template.html`](../medium-blog-post-creator/examples/post-template.html)
-in this skill's folder.
+[`examples/post-template.html`](./examples/post-template.html) in this
+skill's folder.
 
 The post body should include:
 
@@ -262,7 +266,7 @@ Entry shape:
 In the agent's shell:
 
 ```bash
-cd "<local-working-dir>/<repo-name>"
+cd "<repo-local-path>"
 git add posts/<YYYY-MM-DD>-<slug>/ posts/index.json
 git commit -m "feat(posts): add \"<POST TITLE>\" [<YYYY-MM-DD>]"
 git push origin main
@@ -356,7 +360,7 @@ Use the OpenClaw `browser` tool to drive Medium's URL import.
    review.
 7. Copy the draft editor URL.
 
-**Tag handling:** Medium may present a tag combobox. If the user
+**Tag handling:** Medium may present a tag input field. If the user
 supplied tags in the inputs, attempt to add each tag. If Medium's
 UI rejects a tag (for example, a tag that doesn't exist as a topic
 yet), skip it silently and continue. **Do not loop more than twice
@@ -430,4 +434,6 @@ auto-publish more than 2 stories per day** from this skill's output.
 
 ## License
 
-MIT. See [`../../LICENSE`](../../LICENSE) in the umbrella repository.
+MIT. This skill is part of the [openclaw-skills](https://github.com/ylnhari/openclaw-skills)
+collection. See the umbrella repository's [LICENSE](https://github.com/ylnhari/openclaw-skills/blob/main/LICENSE)
+for the full text.
