@@ -24,7 +24,7 @@ repo names, or URLs.
 
 > Ask the user for:
 > - The GitHub username or org that will host the blog repository
-> - The desired repository name (default suggestion: `<username>.github.io`)
+> - The desired repository name (default suggestion: `blog`)
 > - Whether they want a brand-new repo or to use an existing one
 
 ### Bad

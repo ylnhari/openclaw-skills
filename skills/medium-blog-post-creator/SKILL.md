@@ -79,8 +79,11 @@ assumptions explicitly** before proceeding:
 4. **Length** — `short` (~500w) / `medium` (~1000w) / `long` (~2000w+). Default: `medium`.
 5. **Key sections or bullet points** the post must cover.
 6. **GitHub username or org** to host the blog repo (required). Example: `octocat`.
-7. **Repository name**. Default: `<username>.github.io` (user site, simplest) or
-   `blog` (project site). Default suggestion: `<username>.github.io`.
+7. **Repository name**. Default suggestion: `blog` — a normal project repo,
+   served at `https://<username>.github.io/blog/`. (Advanced: naming the repo
+   exactly `<username>.github.io` serves the blog at your account root,
+   `https://<username>.github.io/`, but it uses your one and only user site,
+   so most people keep `blog`.)
 8. **Local working directory** to clone into. Default: current working directory.
 9. **Tags** for Medium (2–5 short keywords).
 10. **Optional: cover image URL.** If absent, pick a relevant free-license

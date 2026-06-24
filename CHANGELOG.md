@@ -29,6 +29,11 @@ for the repository as a whole. Individual skills are versioned independently.
   (`emoji`, `requires.bins`), `homepage`, and `license`. Verified with the
   bundled `quick_validate.py`.
 
+### Changed (cont.)
+- Default repo-name suggestion is now `blog` (a normal project repo) instead of
+  `<username>.github.io`. The user-site option still works; it's just no longer
+  the default, since most people reserve their one user site for a homepage.
+
 ### Fixed
 - Pre-publish audit corrections to `medium-blog-post-creator`: GitHub Pages
   URL resolution for user vs project sites, Pages-enable ordering (moved to
