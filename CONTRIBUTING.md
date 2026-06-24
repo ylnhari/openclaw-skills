@@ -38,12 +38,19 @@ pattern makes the skill portable.
 
 ```
 skills/<your-skill-slug>/
-├── SKILL.md              ← required
-├── README.md             ← required: human-readable docs
-├── CHANGELOG.md          ← required: per-skill changelog
-├── examples/             ← optional: example inputs/outputs
-└── assets/               ← optional: images, screenshots
+├── SKILL.md              ← required (the only mandatory file)
+├── references/           ← optional: docs the agent loads on demand
+├── assets/               ← optional: templates / output resources
+└── scripts/              ← optional: deterministic helpers
 ```
+
+**The entire skill folder is published to ClawHub**, so keep it to what an end
+user needs. Do **not** put a `README.md`, `CHANGELOG.md`, or other repo-meta
+docs inside a skill folder — those live at the repo root. This matches the
+skills that ship with OpenClaw (every one is `SKILL.md` plus optional
+`references/`/`assets/`/`scripts/`). Version history is the ClawHub release
+changelog (the `--changelog` passed at publish) plus the umbrella
+`CHANGELOG.md`.
 
 **Note:** per-skill auto-publish workflows live at the repo root
 (`.github/workflows/skill-publish-<skill-slug>.yml`), not inside the skill
@@ -55,20 +62,23 @@ Skills in this collection **may** maintain per-user runtime state so they
 don't re-ask the same setup questions on every invocation. Two patterns
 are supported:
 
-- **Per-install config** at `<skill-install-dir>/config.local.json`
-  (or wherever `$MEDIUM_BLOG_CONFIG` points for env-overridable skills).
-  Holds personal preferences that are stable across posts but not across
-  machines. **Never bundled with the skill, never committed to the
-  skill repo, never published to ClawHub.**
+- **Per-install config** stored **outside the installed skill bundle** —
+  pointed to by an env var (e.g. `$MEDIUM_BLOG_CONFIG`) or in the per-user
+  config directory (`~/.config/<skill>/`, `%APPDATA%\<skill>\`). Holds
+  personal preferences that are stable across posts but not across
+  machines. **Never bundled with the skill, never committed to the skill
+  repo, never published to ClawHub.** Do not write it inside the install
+  folder: `openclaw skills update` hashes bundle files to match versions,
+  so a stray runtime file there can break updates.
 - **Per-repo marker** at `<user-repo>/.<skill-slug>-config.json`,
   committed to the user's data repository. Holds values that are safe to
   expose publicly and that should travel with the data (e.g., GitHub
   owner, repo name, default author handle).
 
-Both files are documented in the skill's `examples/` folder. The umbrella
-repo's `.gitignore` blocks `config.local.json` to prevent accidental
-commits by contributors who are also running the skill locally against
-this repository.
+Document both files in the skill's `references/` folder (see
+`medium-blog-post-creator/references/configuration.md`). The umbrella repo's
+`.gitignore` blocks `config.local.json` to prevent accidental commits by
+contributors who also run the skill locally against this repository.
 
 **Skills that don't need persistent state should not introduce it.** Only
 add config files when there's a clear UX win from skipping repeated
@@ -81,16 +91,24 @@ The YAML frontmatter at the top of `SKILL.md` must declare:
 
 | Field | Purpose |
 |-------|---------|
-| `name` | Skill slug, lowercase, hyphens only |
-| `description` | One-line summary, **max 160 bytes** (this is what ClawHub shows in search results) |
+| `name` | Skill slug, lowercase, hyphens only — must match the folder name |
+| `description` | One-line, quoted summary (this is what ClawHub shows in search results); keep it short and trigger-focused |
 
-Recommended additional fields:
+Optional fields recognized by OpenClaw skills:
 
 | Field | Purpose |
 |-------|---------|
-| `version` | Semver (e.g., `1.0.0`) — mirrors the `CHANGELOG.md` |
-| `tags` | Comma-separated keywords for discoverability |
-| `prerequisites` | Free-form list of accounts/tools the user needs |
+| `metadata` | Skill metadata; use `metadata.openclaw.requires.bins` to declare required CLIs (e.g. `["gh","git"]`) so OpenClaw can detect/prompt installs |
+| `homepage` | URL to the skill's docs or source |
+| `license` | SPDX license id (e.g. `MIT`) |
+| `allowed-tools` | Restrict which tools the skill may use |
+| `user-invocable` | Whether the user can invoke the skill directly |
+
+Do **not** put `version` in frontmatter — version is supplied at publish
+time (`clawhub skill publish --version …`) and tracked in `CHANGELOG.md`.
+Discoverability keywords belong in the `description` and README, not a
+`tags` field. List prerequisites in the skill body, and declare required
+binaries via `metadata.openclaw.requires.bins`.
 
 ## Local validation before publishing
 
@@ -109,6 +127,13 @@ clawhub skill publish ./skills/<your-skill-slug> \
 The dry-run reports missing files, malformed frontmatter, and oversized
 descriptions.
 
+**Frontmatter is strictly allow-listed.** Validation only permits these keys:
+`name`, `description`, `homepage`, `license`, `allowed-tools`,
+`user-invocable`, `metadata`. Any other key (e.g. `version`, `tags`,
+`prerequisites`) fails validation. `description` must be a non-empty string,
+**must not contain `<` or `>`**, and is capped at 1024 characters. `name` must
+be hyphen-case and ≤ 64 characters.
+
 ## Publishing
 
 Each skill ships with its own GitHub Actions workflow at
@@ -122,8 +147,9 @@ set up to be triggered in two ways:
 
 To publish a new version of an existing skill:
 
-1. Bump the `version` in `SKILL.md` and add an entry to the skill's
-   `CHANGELOG.md`.
+1. Decide the new version (passed via `--version` at publish) and record the
+   notable changes in the umbrella `CHANGELOG.md`. Do not add a version to
+   `SKILL.md` frontmatter — ClawHub tracks the version per release.
 2. Open the Actions tab → "Publish <skill-slug> to ClawHub" → Run
    workflow. Choose `dry_run: false` to actually publish.
 3. After verifying the publish succeeded, create a matching GitHub tag

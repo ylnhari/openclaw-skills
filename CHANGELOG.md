@@ -12,9 +12,32 @@ for the repository as a whole. Individual skills are versioned independently.
 ## [Unreleased]
 
 ### Added
-- Skill: `medium-blog-post-creator` v1.1.0 — adds persistent
-  configuration so repeat invocations skip the setup questions. See
-  the skill's CHANGELOG for full details.
+- Skill: `medium-blog-post-creator` — persistent configuration so repeat
+  invocations skip the setup questions (per-install config + per-repo marker).
+
+### Changed
+- **Restructured the `medium-blog-post-creator` bundle to match how real
+  ClawHub/OpenClaw skills ship**: now just `SKILL.md` + `references/` +
+  `assets/`. Moved the HTML rules to `references/html-standards.md`, the
+  config schemas/resolution to `references/configuration.md`, and the
+  templates to `assets/`. Removed the in-bundle `README.md` and `CHANGELOG.md`
+  (no published OpenClaw skill ships those; the whole folder is published).
+- Frontmatter aligned with OpenClaw's strict allow-list: dropped the
+  invalid `version`/`tags`/`prerequisites`; added `metadata.openclaw`
+  (`emoji`, `requires.bins`), `homepage`, and `license`. Verified with the
+  bundled `quick_validate.py`.
+
+### Fixed
+- Pre-publish audit corrections to `medium-blog-post-creator`: GitHub Pages
+  URL resolution for user vs project sites, Pages-enable ordering (moved to
+  Step 2, was effectively dead in Step 7), per-install config moved out of the
+  installed bundle, clone-path handling, and the `openclaw skills install`
+  command syntax (install by slug).
+
+### Docs
+- `CONTRIBUTING.md` corrected to OpenClaw's real conventions: strict
+  frontmatter allow-list, `SKILL.md`-only bundles (no per-skill
+  README/CHANGELOG), and config stored outside the bundle.
 
 ## [1.0.0] - 2026-06-24
 

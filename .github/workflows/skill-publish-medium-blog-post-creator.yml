@@ -50,13 +50,16 @@ jobs:
       - name: Install ClawHub CLI
         run: npm install -g clawhub
 
-      - name: Login to ClawHub
-        env:
-          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
-        run: clawhub login --token "$CLAWHUB_TOKEN"
-
+      # ClawHub reads its publish credential from the CLAWHUB_TOKEN
+      # environment variable for non-interactive (CI) publishing, so no
+      # separate login step is needed here.
+      # NOTE: confirm the exact non-interactive auth for your clawhub
+      # version with `clawhub login --help` / `clawhub skill publish --help`
+      # before the first real publish. The maintainer can also publish
+      # manually from a logged-in shell instead of relying on this workflow.
       - name: Publish skill
         env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
           SKILL_DIR: skills/medium-blog-post-creator
           SLUG: medium-blog-post-creator
           SKILL_NAME: "Medium Blog Post Creator"

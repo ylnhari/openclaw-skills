@@ -8,26 +8,25 @@ Each skill in this repository follows the [OpenClaw skill format](https://docs.o
 
 | Skill | Slug | Description | Version |
 |-------|------|-------------|---------|
-| [medium-blog-post-creator](./skills/medium-blog-post-creator/) | `medium-blog-post-creator` | Publish blog posts to Medium via GitHub Pages + URL import — no API token required. | 1.0.0 |
+| [medium-blog-post-creator](./skills/medium-blog-post-creator/) | `medium-blog-post-creator` | Publish blog posts to Medium via GitHub Pages + URL import — no API token required. | 1.1.0 |
 
 More skills will be added over time. See [CONTRIBUTING.md](./CONTRIBUTING.md) if you'd like to add one.
 
 ## Installation
 
-Each skill is independently installable from ClawHub. Replace
-`<owner>` with the GitHub user or org that hosts this repository
-(when you fork or mirror it, change this to your own handle):
+Each skill is independently installable from ClawHub. Skills install by
+**slug** (slugs are unique on ClawHub):
 
 ```bash
-# Install a skill published from this repository
-openclaw skills install @<owner>/medium-blog-post-creator
+# Install a skill published to ClawHub
+openclaw skills install medium-blog-post-creator
 ```
 
 You can also install directly from a local checkout by pointing OpenClaw
 at the skill folder:
 
 ```bash
-openclaw skills install ./skills/medium-blog-post-creator
+openclaw skills install ./skills/medium-blog-post-creator --as medium-blog-post-creator
 ```
 
 ## Repository layout
@@ -43,13 +42,18 @@ openclaw-skills/
 ├── .github/workflows/         ← auto-publish workflows (one per skill)
 │   └── skill-publish-<skill-slug>.yml
 └── skills/
-    └── <skill-slug>/
+    └── <skill-slug>/         ← this whole folder is what publishes to ClawHub
         ├── SKILL.md           ← required: skill procedure + frontmatter
-        ├── README.md          ← per-skill documentation
-        ├── CHANGELOG.md       ← per-skill changelog
-        ├── examples/          ← optional: usage examples
-        └── assets/            ← optional: images, diagrams
+        ├── references/        ← optional: docs the agent loads on demand
+        ├── assets/            ← optional: templates / output resources
+        └── scripts/           ← optional: deterministic helpers
 ```
+
+A published skill bundle is just `SKILL.md` plus its supporting
+`references/`, `assets/`, and `scripts/` — the same shape as the skills that
+ship with OpenClaw. Human-facing docs (this README, per-skill notes, version
+history) live at the **repo root**, not inside the skill folder, so they don't
+ship to every install.
 
 Every skill ships with its own GitHub Actions workflow at
 `.github/workflows/skill-publish-<skill-slug>.yml` (at the repo root —
