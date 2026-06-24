@@ -35,6 +35,11 @@ for the repository as a whole. Individual skills are versioned independently.
   Step 2, was effectively dead in Step 7), per-install config moved out of the
   installed bundle, clone-path handling, and the `openclaw skills install`
   command syntax (install by slug).
+- Subsequent-run repo reuse: the per-install config now stores `last_repo`
+  (owner/name/pages_url/branch) so later runs locate the existing blog repo
+  without re-asking, instead of relying on the agent already being inside it.
+- Scaffolding now writes a `.nojekyll` file so GitHub Pages serves the static
+  HTML as-is (no Jekyll processing).
 
 ### Docs
 - `CONTRIBUTING.md` corrected to OpenClaw's real conventions: strict

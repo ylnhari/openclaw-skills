@@ -20,7 +20,10 @@ installed bundles by hashing their files — a stray runtime file inside the
 bundle can interfere with updates or be overwritten by them.
 
 It is **never committed, never bundled, never published.** Holds personal
-preferences that are stable across posts but not across machines:
+preferences that are stable across posts but not across machines, plus
+`last_repo` — the machine-local pointer to which blog repo to reuse, so later
+runs can locate it without asking (the marker lives *inside* the repo, so the
+skill needs this to know where the repo is in the first place):
 
 ```json
 {
@@ -29,9 +32,19 @@ preferences that are stable across posts but not across machines:
   "default_audience": "technical",
   "default_tone": "casual",
   "default_length": "medium",
-  "default_branch": "main"
+  "default_branch": "main",
+  "last_repo": {
+    "github_owner": "<github-username-or-org>",
+    "github_repo": "<repo-name>",
+    "pages_url": "<pages-base-url>",
+    "branch": "main"
+  }
 }
 ```
+
+`last_repo` is absent until the first repo is set up; the skill writes it at
+the end of the first run and reads it on every run after to compute
+`<repo-local-path> = <default_working_dir>/<github_repo>`.
 
 ## 2. Per-repo marker (travels with the blog)
 
@@ -59,17 +72,23 @@ for a project repo. The example above shows the project-site form.
 
 ## Resolution rules
 
-- **Both files present:** proceed straight to Step 2 using the merged config.
-  Do not re-ask any sticky questions.
-- **Only the per-repo marker present (per-install missing):** ask the user for
-  the per-install preferences, write the per-install config, then proceed.
-- **Only the per-install config present (no per-repo marker):** ask the user
-  for the GitHub owner + repo name, scaffold a fresh repo in Step 2, and write
-  `.medium-skill-config.json` to it.
-- **Neither present:** fall through to the original "Inputs collected from the
-  user" flow.
-- **Unknown `schema_version`:** if either file's `schema_version` is not `1`,
-  warn the user, treat unrecognized fields as defaults, and continue.
+`last_repo` (in the per-install config) is the machine-local pointer to "which
+blog repo to use"; the per-repo marker is the in-repo source of truth that
+travels with the repo. Resolve in this order:
+
+- **`last_repo` is set:** reuse that repo. Step 2 ensures the local clone
+  exists (a fresh clone brings the marker with it). Do not re-ask setup
+  questions.
+- **Marker readable but `last_repo` unset** (e.g. the agent is already running
+  inside the blog repo): adopt the marker's repo and save `last_repo` back to
+  the per-install config — no need to ask.
+- **First run on this machine (no `last_repo`, no readable marker):** ask the
+  full input set, then in Step 2 create/clone the repo, write
+  `.medium-skill-config.json` into it, and save `last_repo`.
+- **One-off override:** if the user names a different repo for a single post,
+  honor it for that invocation only and leave `last_repo` unchanged.
+- **Unknown `schema_version`:** if a file's `schema_version` is not `1`, warn
+  the user, treat unrecognized fields as defaults, and continue.
 
 ## Per-invocation overrides
 

@@ -92,17 +92,22 @@ assumptions explicitly** before proceeding:
 
 ### Step 0 — Load or initialize persistent config
 
-Per `references/configuration.md`, load the per-install config
-(`$MEDIUM_BLOG_CONFIG`, else the per-user config dir) and the per-repo marker
-(`<repo-local-path>/.medium-skill-config.json`), then merge:
+Load the per-install config (`$MEDIUM_BLOG_CONFIG`, else the per-user config
+dir) and, if the blog repo is already cloned, its per-repo marker
+(`<repo-local-path>/.medium-skill-config.json`). Schemas and full rules are in
+`references/configuration.md`. Then:
 
-- **Both present:** proceed directly to Step 2 with the merged values; do not
-  re-ask sticky questions.
-- **Only the per-repo marker present:** ask for the per-install preferences,
-  write them, then proceed.
-- **Only the per-install config present:** ask for GitHub owner + repo name,
-  scaffold the repo in Step 2, and write the marker there.
-- **Neither present:** ask the full input set above, then write both files.
+- **The per-install config names a repo (`last_repo` set):** reuse it. Skip all
+  setup questions and go to Step 2, which ensures the local clone exists (a
+  fresh clone brings the marker with it). `<repo-local-path>` =
+  `<default_working_dir>/<github_repo>`.
+- **Marker readable but `last_repo` unset** (e.g. the agent is already inside
+  the blog repo): adopt the marker's repo and save `last_repo` — don't re-ask.
+- **First run on this machine (no `last_repo`, no readable marker):** ask the
+  full input set above; Step 2 creates the repo, writes the marker into it, and
+  saves `last_repo` to the per-install config so later runs skip setup.
+- **One-off override:** if the user names a different repo for this post, use it
+  for this invocation only; do not change `last_repo`.
 
 ### Step 1 — Confirm prerequisites
 
@@ -131,9 +136,9 @@ Keep the trailing slash. A post then lives at
 `https://<owner>.github.io/<repo>/...` unconditionally — for a
 `<owner>.github.io` repo that produces a broken double path.
 
-**If the per-repo marker was loaded in Step 0:** the repo already exists and
-Pages was enabled during initial setup. Skip creation and the Pages-enable step
-below; just ensure the local clone is present and current:
+**If the repo is already known (`last_repo` set, or the marker is present):**
+it already exists and Pages was enabled during initial setup. Skip creation and
+the Pages-enable step below; just ensure the local clone is present and current:
 
 ```bash
 mkdir -p "<default_working_dir>"
@@ -144,7 +149,7 @@ else
 fi
 ```
 
-**If the per-repo marker was not loaded (fresh setup):**
+**If no repo is known yet (fresh setup):**
 
 1. Create and clone the repo (run from `<default_working_dir>` so the clone
    lands at `<repo-local-path>`):
@@ -189,12 +194,14 @@ fi
    } | ConvertTo-Json | Set-Content "<repo-local-path>\.medium-skill-config.json"
    ```
 
-4. Commit and push the marker:
+4. Create an empty `.nojekyll` at the repo root so GitHub Pages serves the
+   HTML as-is (no Jekyll processing), then commit it with the marker:
 
    ```bash
    cd "<repo-local-path>"
-   git add .medium-skill-config.json
-   git commit -m "chore: mark this repo as managed by medium-blog-post-creator"
+   touch .nojekyll          # Windows PowerShell: New-Item -ItemType File .nojekyll
+   git add .nojekyll .medium-skill-config.json
+   git commit -m "chore: mark repo as managed by medium-blog-post-creator + add .nojekyll"
    git push origin <branch>
    ```
 
@@ -217,6 +224,11 @@ fi
      `https://github.com/<github_owner>/<github_repo>/settings/pages`
      (Source: **Deploy from a branch** → `<branch>` / `/ (root)`), and wait for
      confirmation before continuing.
+
+6. **Save the repo to the per-install config** so future runs reuse it without
+   asking: write `last_repo` (`github_owner`, `github_repo`, `pages_url` =
+   `<pages-base-url>`, `branch`) into the per-install config file. Schema in
+   `references/configuration.md`.
 
 ### Step 3 — Create the post HTML file
 
