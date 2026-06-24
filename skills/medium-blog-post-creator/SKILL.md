@@ -1,7 +1,7 @@
 ---
 name: "medium-blog-post-creator"
 description: "Publish blog posts to Medium via GitHub Pages + URL import — no API token required."
-version: "1.0.0"
+version: "1.1.0"
 tags: "medium, blog, publishing, github-pages, static-site, automation"
 prerequisites: "GitHub account, Medium account, gh CLI authenticated, OpenClaw browser tool"
 ---
@@ -59,6 +59,93 @@ mentions Medium.
 - **No OS assumptions.** Paths are derived from the user's inputs and
   current working directory; the same procedure works on Windows,
   macOS, and Linux.
+
+## Persistent configuration (sticky state)
+
+After the first successful run, the skill remembers its setup so subsequent
+invocations skip the scaffolding questions. State is stored in **two places**,
+and the skill checks them in this order on every invocation:
+
+### 1. Per-install config (machine-local)
+
+Lives at (first match wins):
+
+1. `$MEDIUM_BLOG_CONFIG` (if the environment variable is set), or
+2. `<skill-install-dir>/config.local.json`
+
+Where `<skill-install-dir>` is the directory OpenClaw installs the skill
+into (typically `~/.openclaw/skills/medium-blog-post-creator/` on
+Unix-like systems, or `%USERPROFILE%\.openclaw\skills\medium-blog-post-creator\`
+on Windows).
+
+This file is **never committed, never bundled, never published**. It holds
+personal preferences that are stable across posts but not across machines:
+
+```json
+{
+  "schema_version": 1,
+  "default_working_dir": "~/Projects",
+  "default_audience": "technical",
+  "default_tone": "casual",
+  "default_length": "medium",
+  "default_branch": "main"
+}
+```
+
+See [`examples/config.example.json`](./examples/config.example.json) for
+the full schema.
+
+### 2. Per-repo marker (travels with the blog)
+
+Lives at `<repo-local-path>/.medium-skill-config.json` and is committed to
+the blog repository itself. This means the blog's identity follows the
+repo — switch machines, and a fresh clone brings the marker with you.
+
+The file is **public** (it lives in a public GitHub repository), so it
+holds only values that are safe to expose:
+
+```json
+{
+  "schema_version": 1,
+  "github_owner": "<github-username-or-org>",
+  "github_repo": "<repo-name>",
+  "pages_url": "https://<github-username-or-org>.github.io/<repo-name>/",
+  "default_author": "<github-username-or-org>",
+  "branch": "main"
+}
+```
+
+See [`examples/.medium-skill-config.example.json`](./examples/.medium-skill-config.example.json)
+for the full schema.
+
+### Resolution rules
+
+- **Both files present:** proceed straight to Step 2 using the merged
+  config. Do not re-ask any sticky questions.
+- **Only the per-repo marker present (per-install missing):** ask the
+  user for the per-install preferences, then write `config.local.json`
+  before proceeding.
+- **Only the per-install config present (no per-repo marker):** ask the
+  user for the GitHub owner + repo name, then scaffold a fresh repo and
+  write `.medium-skill-config.json` to it during Step 2.
+- **Neither present:** fall through to the original "Inputs collected from
+  the user" flow.
+
+### Per-invocation overrides
+
+The user can override any sticky value for one invocation without
+touching the config files. For example: *"Use `acme-corp/engineering-blog`
+for this post"* should be honored as a one-off. After the post
+completes, the config files are left unchanged.
+
+### Resetting persistent state
+
+| User says | Action |
+|-----------|--------|
+| "Forget my local config" / "Reset skill state" | Delete `<skill-install-dir>/config.local.json`. The per-repo marker is untouched. |
+| "Forget this blog" / "Detach this repo from the skill" | Delete `<repo-local-path>/.medium-skill-config.json` and commit the removal. The per-install config is untouched. |
+| "Forget everything" / "Start over" | Delete both files. The next invocation will go through the original first-run flow. |
+| "Use a different blog for this post" | Override the GitHub owner + repo for this invocation only; do not touch the configs. |
 
 ## Prerequisites (collected from the user)
 
@@ -122,8 +209,32 @@ sensible defaults and **clearly state the assumptions you made**.
 
 ## Workflow
 
-The workflow has 10 steps. Each step has a clear completion check before
-moving on. **Do not skip steps.**
+The workflow has 11 steps. The first step is a configuration check that
+may short-circuit the entire first-run flow on subsequent invocations.
+**Do not skip Step 0 even on first run.**
+
+### Step 0 — Load or initialize persistent config
+
+1. Try to load the per-install config from
+   `$MEDIUM_BLOG_CONFIG` (if set) or
+   `<skill-install-dir>/config.local.json`.
+2. Try to load the per-repo marker from
+   `<repo-local-path>/.medium-skill-config.json`. If
+   `<repo-local-path>` is not yet known (because the repo isn't cloned),
+   check whether the per-install config names a known repo and use it to
+   compute the expected path.
+3. Merge the two configs using the resolution rules in
+   "Persistent configuration" above.
+4. **If both configs are missing:** ask the user for the full input set
+   described in "Inputs collected from the user", then write both
+   config files before proceeding to Step 1.
+5. **If only the per-repo marker is missing:** ask the user for the
+   GitHub owner + repo name, scaffold the repo in Step 2, and write
+   `.medium-skill-config.json` there.
+6. **If only the per-install config is missing:** ask the user for the
+   per-install preferences, write `config.local.json`, then proceed.
+7. **If both configs are present:** proceed directly to Step 1 with the
+   merged values; do not re-ask any sticky questions.
 
 ### Step 1 — Confirm prerequisites
 
@@ -146,26 +257,77 @@ dependencies and works the same on every machine.
 
 Throughout the rest of this workflow, `<repo-local-path>` refers to the
 local filesystem path of the cloned repository (typically
-`<local-working-dir>/<repo-name>`).
+`<default_working_dir>/<github_repo>`).
+
+**If the per-repo marker was loaded in Step 0:** the repo already exists
+on GitHub. Skip creation; just ensure the local clone is present and up
+to date:
+
+```bash
+mkdir -p "<default_working_dir>"
+if [ ! -d "<repo-local-path>" ]; then
+  gh repo clone <github_owner>/<github_repo> "<repo-local-path>"
+else
+  cd "<repo-local-path>" && git pull --rebase origin <branch>
+fi
+```
+
+**If the per-repo marker was not loaded (fresh setup):**
 
 1. In the agent's shell, run:
 
    ```bash
-   gh repo create <github-username-or-org>/<repo-name> \
+   gh repo create <github_owner>/<github_repo> \
      --public \
      --description "Static blog for Medium cross-posting" \
      --clone \
      --add-readme
    ```
 
-2. If the repository already exists, fall back to:
+2. If the repository already exists on GitHub but the local clone is
+   missing, fall back to:
 
    ```bash
-   gh repo clone <github-username-or-org>/<repo-name> \
-     "<local-working-dir>/<repo-name>"
+   gh repo clone <github_owner>/<github_repo> \
+     "<default_working_dir>/<github_repo>"
    ```
 
-3. Confirm the clone succeeded and `<repo-local-path>` exists.
+3. Confirm `<repo-local-path>` exists.
+
+4. Write the per-repo marker so future invocations can skip Step 2:
+
+   ```bash
+   # On Unix (bash)
+   printf '%s\n' '{' \
+     '  "schema_version": 1,' \
+     "  \"github_owner\": \"<github_owner>\"," \
+     "  \"github_repo\": \"<github_repo>\"," \
+     "  \"pages_url\": \"https://<github_owner>.github.io/<github_repo>/\"," \
+     "  \"default_author\": \"<github_owner>\"," \
+     "  \"branch\": \"<branch>\"" \
+     '}' > "<repo-local-path>/.medium-skill-config.json"
+   ```
+
+   ```powershell
+   # On Windows (PowerShell)
+   @{
+     schema_version = 1
+     github_owner    = "<github_owner>"
+     github_repo     = "<github_repo>"
+     pages_url       = "https://<github_owner>.github.io/<github_repo>/"
+     default_author  = "<github_owner>"
+     branch          = "<branch>"
+   } | ConvertTo-Json | Set-Content "<repo-local-path>\.medium-skill-config.json"
+   ```
+
+5. Commit the marker:
+
+   ```bash
+   cd "<repo-local-path>"
+   git add .medium-skill-config.json
+   git commit -m "chore: mark this repo as managed by medium-blog-post-creator"
+   git push origin <branch>
+   ```
 
 ### Step 3 — Create the post HTML file
 

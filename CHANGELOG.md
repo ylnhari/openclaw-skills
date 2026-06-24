@@ -12,8 +12,9 @@ for the repository as a whole. Individual skills are versioned independently.
 ## [Unreleased]
 
 ### Added
-- Initial repository skeleton: README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, .gitignore
-- Skill: `medium-blog-post-creator` v1.0.0
+- Skill: `medium-blog-post-creator` v1.1.0 — adds persistent
+  configuration so repeat invocations skip the setup questions. See
+  the skill's CHANGELOG for full details.
 
 ## [1.0.0] - 2026-06-24
 

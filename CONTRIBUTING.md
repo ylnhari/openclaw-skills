@@ -49,6 +49,32 @@ skills/<your-skill-slug>/
 (`.github/workflows/skill-publish-<skill-slug>.yml`), not inside the skill
 folder. GitHub Actions only discovers workflow files at the repo root.
 
+### Persistent configuration (optional pattern)
+
+Skills in this collection **may** maintain per-user runtime state so they
+don't re-ask the same setup questions on every invocation. Two patterns
+are supported:
+
+- **Per-install config** at `<skill-install-dir>/config.local.json`
+  (or wherever `$MEDIUM_BLOG_CONFIG` points for env-overridable skills).
+  Holds personal preferences that are stable across posts but not across
+  machines. **Never bundled with the skill, never committed to the
+  skill repo, never published to ClawHub.**
+- **Per-repo marker** at `<user-repo>/.<skill-slug>-config.json`,
+  committed to the user's data repository. Holds values that are safe to
+  expose publicly and that should travel with the data (e.g., GitHub
+  owner, repo name, default author handle).
+
+Both files are documented in the skill's `examples/` folder. The umbrella
+repo's `.gitignore` blocks `config.local.json` to prevent accidental
+commits by contributors who are also running the skill locally against
+this repository.
+
+**Skills that don't need persistent state should not introduce it.** Only
+add config files when there's a clear UX win from skipping repeated
+setup questions, and never store credentials, tokens, or any sensitive
+data in either config file.
+
 ## SKILL.md frontmatter contract
 
 The YAML frontmatter at the top of `SKILL.md` must declare:

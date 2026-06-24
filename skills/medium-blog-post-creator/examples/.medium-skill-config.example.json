@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "github_owner": "<github-username-or-org>",
+  "github_repo": "<repo-name>",
+  "pages_url": "https://<github-username-or-org>.github.io/<repo-name>/",
+  "default_author": "<github-username-or-org>",
+  "branch": "main"
+}

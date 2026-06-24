@@ -1,3 +1,8 @@
+# Per-install runtime state (NOT shipped with the skill, NOT committed)
+# Created automatically by the skill on first successful run.
+# Override location via MEDIUM_BLOG_CONFIG env var.
+config.local.json
+
 # OS
 .DS_Store
 Thumbs.db

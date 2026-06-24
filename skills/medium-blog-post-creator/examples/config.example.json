@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "default_working_dir": "~/Projects",
+  "default_audience": "technical",
+  "default_tone": "casual",
+  "default_length": "medium",
+  "default_branch": "main"
+}

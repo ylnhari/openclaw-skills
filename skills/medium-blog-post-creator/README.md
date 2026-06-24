@@ -64,9 +64,10 @@ Just ask your OpenClaw agent:
 
 The skill will then:
 
-1. Confirm your prerequisites (`gh`, browser, Medium sign-in).
-2. Ask for the few inputs it needs (GitHub username, repo name, tags, etc.).
-3. Scaffold a fresh static blog repository in your GitHub account.
+1. **Load persistent config** (see below) — skips all setup questions
+   on subsequent invocations.
+2. Confirm your prerequisites (`gh`, browser, Medium sign-in).
+3. Scaffold or clone your static blog repository on GitHub.
 4. Write the post HTML to a constrained subset Medium's importer accepts.
 5. Push to GitHub and wait for Pages to deploy.
 6. Drive your browser to `medium.com/p/import`, paste the URL, click Import.
@@ -74,6 +75,32 @@ The skill will then:
 8. Link the Medium draft URL back into the repository's metadata.
 
 You stay in control: the skill stops at draft, you click Publish when ready.
+
+## Persistent configuration
+
+The skill remembers its setup so you don't have to answer the same
+questions every time. State lives in **two files**:
+
+| File | Lives where | Holds what | Public? |
+|------|-------------|-----------|---------|
+| `config.local.json` | Next to the installed skill (or `$MEDIUM_BLOG_CONFIG`) | Per-machine preferences: default working dir, audience, tone, length, branch | No — never committed, never bundled |
+| `.medium-skill-config.json` | At the root of your blog repository | Blog identity: GitHub owner, repo name, pages URL, default author | Yes — it lives in a public GitHub repo |
+
+On every invocation the skill loads both and merges them. Once everything
+is set up, future invocations go straight to creating the next post —
+no questions asked unless you want to override something.
+
+**Reset paths** (the skill handles these when you ask):
+
+- *"Forget my local config"* → deletes `config.local.json`
+- *"Forget this blog"* → deletes `.medium-skill-config.json` from the repo
+- *"Forget everything"* → deletes both, next run is a fresh first-run
+
+**One-off overrides** are honored without touching the configs. For
+example: *"Use `acme-corp/engineering-blog` for this post"* works
+without modifying your saved config.
+
+See [`SKILL.md`](./SKILL.md) for the full resolution rules.
 
 ## HTML standards (why we have them)
 
@@ -108,7 +135,9 @@ skills/medium-blog-post-creator/
 ├── examples/
 │   ├── post-template.html
 │   ├── meta.json
-│   └── standards-snippet.md
+│   ├── standards-snippet.md
+│   ├── config.example.json                  ← per-install config schema
+│   └── .medium-skill-config.example.json    ← per-repo marker schema
 └── assets/
     └── (cover image goes here)
 ```
