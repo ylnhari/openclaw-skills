@@ -1,0 +1,78 @@
+# skills/medium-blog-post-creator/.github/workflows/skill-publish.yml
+#
+# Per-skill publish workflow for ClawHub.
+# Copy this file into any new skill folder (adjust slug/name/path) to enable
+# auto-publish for that skill.
+#
+# Required secrets (set at the repository or org level):
+#   - CLAWHUB_TOKEN   (https://clawhub.ai → API token)
+
+name: Publish medium-blog-post-creator to ClawHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Explicit semver (e.g. 1.1.0). Leave empty to auto-bump patch.'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Run without uploading.'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+  # Auto-trigger on a tagged release. Adjust tag pattern when changing the slug.
+  push:
+    tags:
+      - 'v-medium-blog-post-creator-*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ClawHub CLI
+        run: npm install -g clawhub
+
+      - name: Login to ClawHub
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: clawhub login --token "$CLAWHUB_TOKEN"
+
+      - name: Publish skill
+        env:
+          SKILL_DIR: skills/medium-blog-post-creator
+          SLUG: medium-blog-post-creator
+          SKILL_NAME: "Medium Blog Post Creator"
+          VERSION: ${{ github.event.inputs.version }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -euo pipefail
+
+          ARGS=(skill publish "./${SKILL_DIR}" \
+            --slug "${SLUG}" \
+            --name "${SKILL_NAME}" \
+            --changelog "Auto-publish from ${GITHUB_REF}")
+
+          if [ -n "${VERSION}" ]; then
+            ARGS+=(--version "${VERSION}")
+          fi
+
+          if [ "${DRY_RUN}" = "true" ]; then
+            ARGS+=(--dry-run)
+          fi
+
+          clawhub "${ARGS[@]}"
