@@ -42,9 +42,12 @@ skills/<your-skill-slug>/
 ├── README.md             ← required: human-readable docs
 ├── CHANGELOG.md          ← required: per-skill changelog
 ├── examples/             ← optional: example inputs/outputs
-├── assets/               ← optional: images, screenshots
-└── .github/workflows/    ← optional: per-skill CI (rarely needed)
+└── assets/               ← optional: images, screenshots
 ```
+
+**Note:** per-skill auto-publish workflows live at the repo root
+(`.github/workflows/skill-publish-<skill-slug>.yml`), not inside the skill
+folder. GitHub Actions only discovers workflow files at the repo root.
 
 ## SKILL.md frontmatter contract
 
@@ -82,25 +85,46 @@ descriptions.
 
 ## Publishing
 
-This repository has a reusable GitHub Actions workflow that publishes every
-immediate subfolder of `skills/` to ClawHub on tagged releases. To publish a
-new skill:
+Each skill ships with its own GitHub Actions workflow at
+`.github/workflows/skill-publish-<your-skill-slug>.yml`. The workflow is
+set up to be triggered in two ways:
 
-1. Merge your skill PR into `main`.
-2. Bump its `version` in `SKILL.md` and add an entry to its `CHANGELOG.md`.
-3. Trigger the workflow manually from the Actions tab with
-   `workflow_dispatch`. Set `dry_run: false` for a real publish.
-4. After the publish succeeds, tag a release so future updates can be
-   triggered automatically: `git tag v-<skill-slug>-<version> && git push --tags`
-   (e.g., `v-medium-blog-post-creator-1.0.0`).
+- **Manually** from the Actions tab (`workflow_dispatch`) — choose a
+  version and whether to dry-run.
+- **Automatically** when a tag matching
+  `v-<your-skill-slug>-<version>` is pushed.
 
-The workflow requires the `CLAWHUB_TOKEN` secret to be set at the
-repository or org level. Generate the token at <https://clawhub.ai> →
-Settings → API tokens, then add it under
-<https://github.com/your-org/your-repo/settings/secrets/actions>.
+To publish a new version of an existing skill:
+
+1. Bump the `version` in `SKILL.md` and add an entry to the skill's
+   `CHANGELOG.md`.
+2. Open the Actions tab → "Publish <skill-slug> to ClawHub" → Run
+   workflow. Choose `dry_run: false` to actually publish.
+3. After verifying the publish succeeded, create a matching GitHub tag
+   so future runs can be triggered automatically:
+   `git tag v-<skill-slug>-<version> && git push --tags`
 
 If you don't have write access to push tags or trigger workflows, ask a
 maintainer in the PR — they can do it for you.
+
+### First-time setup
+
+For the workflow to actually publish (not just dry-run), the repository
+needs one secret:
+
+- `CLAWHUB_TOKEN` — generate at <https://clawhub.ai> → Settings → API
+  tokens, then add it at
+  <https://github.com/your-org/your-repo/settings/secrets/actions>.
+
+### Adding a new skill
+
+1. Create `skills/<your-skill-slug>/` with the standard layout (see
+   "Skill folder structure" above).
+2. Copy the workflow file from an existing skill:
+   `cp .github/workflows/skill-publish-medium-blog-post-creator.yml \
+      .github/workflows/skill-publish-<your-skill-slug>.yml`
+3. Edit the copy: update the workflow `name:`, `SKILL_DIR`, `SLUG`,
+   `SKILL_NAME`, and the `push.tags` pattern.
 
 ## Versioning
 

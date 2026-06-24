@@ -1,7 +1,7 @@
 {
   "title": "Full Post Title Goes Here",
   "date": "YYYY-MM-DD",
-  "author": "your-github-username",
+  "author": "<github-username-or-org>",
   "description": "1–2 sentence summary of the post. Max 200 characters.",
   "tags": ["example-tag", "second-tag"],
   "status": "draft",

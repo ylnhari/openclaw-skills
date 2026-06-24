@@ -120,7 +120,7 @@ sensible defaults and **clearly state the assumptions you made**.
 
 ## Workflow
 
-The workflow has 8 steps. Each step has a clear completion check before
+The workflow has 10 steps. Each step has a clear completion check before
 moving on. **Do not skip steps.**
 
 ### Step 1 — Confirm prerequisites
@@ -274,30 +274,65 @@ second attempt, report the error and stop.
 
 ### Step 7 — Enable GitHub Pages and wait for deploy
 
-If this is the first post, GitHub Pages must be enabled for the
-repository:
+Determine whether this is the **first post** the skill is publishing to
+this repository by checking whether `posts/index.json` exists at the
+repo root and is a non-empty array. If it does not exist or is empty,
+this is the first post and Pages may need to be enabled manually.
 
-1. The repository name `<username>.github.io` automatically serves at
-   `https://<username>.github.io/`. No extra config needed.
+**If this is the first post:**
+
+1. If the repository name is `<username>.github.io`, GitHub Pages is
+   automatically enabled — skip to the polling step below.
 2. For any other repository name, the user must enable Pages in the
    repository settings (Settings → Pages → Source: `Deploy from a
-   branch` → Branch: `main` / `/ (root)`). The skill should **tell**
-   the user to do this the first time, with a direct deep link:
-   `https://github.com/<username-or-org>/<repo-name>/settings/pages`.
-3. If Pages is not yet enabled, stop and wait for the user to confirm
-   before continuing.
+   branch` → Branch: `main` / `/ (root)`). Direct the user to the
+   settings page: `https://github.com/<username-or-org>/<repo-name>/settings/pages`.
+3. Wait for the user to confirm Pages is enabled before continuing.
 
-Once Pages is enabled (or already was), wait for the post to deploy:
+**If this is not the first post:** Pages is already enabled. Skip
+straight to polling.
 
-```bash
+**Poll for deploy (cross-platform):**
+
+The skill explicitly supports Windows, macOS, and Linux. Use the
+PowerShell variant on Windows (PowerShell 7+) and the `curl` variant
+on macOS/Linux. Do not assume `curl` is the `curl.exe` binary on
+Windows.
+
+```powershell
+# PowerShell 7+ (Windows, macOS, Linux)
 # Poll the post URL until it returns HTTP 200, max 3 minutes.
-curl -fsS -o /dev/null -w "%{http_code}" \
-  "https://<username-or-org>.github.io/<repo-name>/posts/<YYYY-MM-DD>-<slug>/"
+$url = "https://<username-or-org>.github.io/<repo-name>/posts/<YYYY-MM-DD>-<slug>/"
+$deadline = (Get-Date).AddMinutes(3)
+while ((Get-Date) -lt $deadline) {
+  try {
+    $code = (Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 5 -ErrorAction Stop).StatusCode
+    if ($code -eq 200) { exit 0 }
+  } catch {
+    $code = 404
+  }
+  if ($code -eq 200) { exit 0 }
+  Start-Sleep -Seconds 15
+}
+exit 1
 ```
 
-Run this once. If it returns `200`, proceed. If it returns `404`,
-wait 60 seconds and try again. If still `404` after 3 minutes, direct
-the user to check the GitHub Actions deploy status at
+```bash
+# macOS / Linux (curl from system or curl.exe on Windows)
+# Poll the post URL until it returns HTTP 200, max 3 minutes.
+deadline=$(( $(date +%s) + 180 ))
+url="https://<username-or-org>.github.io/<repo-name>/posts/<YYYY-MM-DD>-<slug>/"
+while [ "$(date +%s)" -lt "$deadline" ]; do
+  code=$(curl -fsS -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo 000)
+  if [ "$code" = "200" ]; then exit 0; fi
+  sleep 15
+done
+exit 1
+```
+
+If the poll succeeds (returns `200`), proceed to Step 8. If it times
+out after 3 minutes (still `404`), direct the user to check the
+repository's Actions deploy status at
 `https://github.com/<username-or-org>/<repo-name>/actions` and report
 back.
 

@@ -1,8 +1,11 @@
-# skills/medium-blog-post-creator/.github/workflows/skill-publish.yml
+# .github/workflows/skill-publish-medium-blog-post-creator.yml
 #
-# Per-skill publish workflow for ClawHub.
-# Copy this file into any new skill folder (adjust slug/name/path) to enable
-# auto-publish for that skill.
+# Per-skill publish workflow for ClawHub. Lives at the repo root because
+# GitHub Actions only discovers workflow files from <repo-root>/.github/workflows/.
+#
+# When adding a new skill, copy this file to:
+#   .github/workflows/skill-publish-<skill-slug>.yml
+# and adjust: workflow `name:`, the tag pattern, `SKILL_DIR`, `SLUG`, `SKILL_NAME`.
 #
 # Required secrets (set at the repository or org level):
 #   - CLAWHUB_TOKEN   (https://clawhub.ai → API token)

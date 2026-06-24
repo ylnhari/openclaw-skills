@@ -47,14 +47,17 @@ openclaw-skills/
         ├── README.md          ← per-skill documentation
         ├── CHANGELOG.md       ← per-skill changelog
         ├── examples/          ← optional: usage examples
-        ├── assets/            ← optional: images, diagrams
-        └── .github/workflows/ ← per-skill auto-publish workflow
+        └── assets/            ← optional: images, diagrams
+
+.github/workflows/                  ← auto-publish workflows (one per skill)
+    └── skill-publish-<skill-slug>.yml
 ```
 
 Every skill ships with its own GitHub Actions workflow at
-`skills/<skill-slug>/.github/workflows/skill-publish.yml` that publishes
-that single skill to ClawHub when triggered manually or via a tagged
-release.
+`.github/workflows/skill-publish-<skill-slug>.yml` (at the repo root —
+GitHub Actions does not discover workflows nested inside `skills/`).
+Each workflow publishes that single skill to ClawHub when triggered
+manually (`workflow_dispatch`) or via a tagged release.
 
 ## Publishing
 
