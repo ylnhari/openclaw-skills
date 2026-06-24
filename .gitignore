@@ -1,7 +1,9 @@
-# Per-install runtime state (NOT shipped with the skill, NOT committed)
-# Created automatically by the skill on first successful run.
-# Override location via MEDIUM_BLOG_CONFIG env var.
+# Per-install runtime config (NOT shipped with the skill, NOT committed).
+# Lives OUTSIDE the repo by default (MEDIUM_BLOG_CONFIG, or the per-user
+# config dir ~/.config/medium-blog-post-creator/). These entries only guard
+# against accidental in-repo copies by a contributor running the skill here.
 config.local.json
+config.json
 
 # OS
 .DS_Store
