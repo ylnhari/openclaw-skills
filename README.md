@@ -8,7 +8,7 @@ Each skill in this repository follows the [OpenClaw skill format](https://docs.o
 
 | Skill | Slug | Description | Version |
 |-------|------|-------------|---------|
-| [medium-blog-post-creator](./skills/medium-blog-post-creator/) | `medium-blog-post-creator` | Publish blog posts to Medium via GitHub Pages + URL import — no API token required. | 1.1.0 |
+| [medium-blog-post-creator](./skills/medium-blog-post-creator/) | `medium-blog-post-creator` | Publish blog posts to Medium via GitHub Pages + URL import — no API token required. | 1.0.0 |
 
 More skills will be added over time. See [CONTRIBUTING.md](./CONTRIBUTING.md) if you'd like to add one.
 
