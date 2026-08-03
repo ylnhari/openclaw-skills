@@ -29,7 +29,7 @@ repo names, or URLs.
 
 ### Bad
 
-> Clone `<some-absolute-local-path>` to `~/blog`.
+> Clone `<repository-url>` into `<repository-root>`.
 
 The bad pattern ties the skill to one machine and one identity. The good
 pattern makes the skill portable.

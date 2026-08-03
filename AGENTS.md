@@ -7,4 +7,4 @@ This repository distributes public, installable OpenClaw skill bundles. Everythi
 - Treat runtime configuration as external to the installed bundle; never commit secrets or user-specific state.
 - Validate any changed skill and review its public documentation, references, assets, and release metadata as one distributable unit.
 - Publishing is user-gated: do not activate workflows, publish to ClawHub, create or push release tags, commit, or push unless explicitly requested.
-- Keep repository-wide policy in shared instructions; this file covers only public skill-distribution constraints.
+- Keep clone-required policy in this committed `AGENTS.md` and the public bundle docs. Optional user-level shared policy may add stricter local rules, but the repository never depends on a private shared core.
